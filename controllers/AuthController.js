@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken')
 
 const salt = bcrypt.genSaltSync(10);
 const mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-const usernameFormat = /^[A-Za-z][A-Za-z0-9_]{1,29}$/
+const usernameFormat = /^[A-Za-z][A-Za-z0-9_]{1,29}$/;
 const passwordFormat = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
 const register = async (req, res) => {
@@ -63,11 +63,9 @@ const login = async (req, res) => {
         return
     }
     if (!passwordFormat.test(password)) {
-        res.status(400).json({error: 'password should have minimum of eight characters, at least one uppercase letter, one lowercase letter, one number and one special character:'})
+        res.status(400).json({error: 'password should have minimum of eight characters, at least one uppercase letter, one lowercase letter, one number and one special character.'})
         return
     }
-
-
 
     try {
         const userDoc = await User.findOne({ username })
@@ -80,13 +78,15 @@ const login = async (req, res) => {
             res.status(400).json({error: 'Incorrect Password'})
             return
         }
-        console.log('login here');
+        //console.log('login here');
         const token = jwt.sign({ id: userDoc._id}, process.env.JWT_SECRET, {expiresIn: '1h'})
         res.cookie('token', token, {httpOnly: true, sameSite: 'none', secure: true }).status(200).json({
             success: "User Logged In",
             data: {
                 userId: userDoc._id,
                 username: userDoc.username,
+                name: userDoc.name,
+                email: userDoc.email,
             }
         })
     } catch(err) {
